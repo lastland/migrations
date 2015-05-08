@@ -35,37 +35,42 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 #. start ``sbt`` within the project folder
-#. switch the project to ``example``
+#. publish the current projects locally
    ::
-      > project example
+      > +publishLocal
+#. switch to the sbt plugin directory ``migrations/slick-plugin``, then start ``sbt``
+#. publish the sbt plugin locally
+   ::
+      > publishLocal
+#. swith to the example directory ``example``, then start ``sbt``
 #. the db is empty
    ::
-      > run dbdump
+      > dbdump
 #. initialize the database for migrations
    ::
-      > run init
+      > init
 #. init created the __migrations__ table
    ::
-      > run dbdump
+      > dbdump
       CREATE CACHED TABLE PUBLIC."__migrations__"(
           "id" INTEGER NOT NULL
       );
 #. the migration yet to be applied
    ::
-      > run status
+      > status
       your database is outdated, not yet applied migrations: 1
 #. its sql or scala code
    ::
-      > run preview
+      > preview
       1 SqlMigration:
               create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR NOT NULL,"last" VARCHAR NOT NULL)
 #. apply it
    ::
-      > run apply
+      > migrate
       applying migration 1
 #. the db changed
    ::
-      > run dbdump
+      > dbdump
       CREATE CACHED TABLE PUBLIC."__migrations__"(
           "id" INTEGER NOT NULL
       );
@@ -77,17 +82,20 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
       );
 #. generate the corresponding data model source files
    ::
-      > run codegen
+      > codegen
 #. To simulate code evolution: uncomment code in `App.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/App.scala>`_
+#. reload sbt
+   ::
+      > reload
 #. a yet empty list of users
    ::
-      > run app
+      > run
       Users in the database:
       List()
 #. To simulate database evolution: uncomment code in `SampleMigrations.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/SampleMigrations.scala>`_
 #. sql and scala code of migrations yet to be applied
    ::
-      > run preview
+      > preview
       2 GenericMigration:
             Users.insertAll(User(1, "Chris", "Vogt"), User(2, "Stefan", "Zeiger"))
 
@@ -96,17 +104,17 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
             alter table "users" alter column "last" rename to "lastname"
 #. the app runs fine as the version of the last generated code matches the current db version
    ::
-      > run app
+      > run
       Users in the database:
       List()
 #. update, so the db version does not match anymore
    ::
-      > run apply
+      > migrate
       applying migration 2
       applying migration 3
 #. the db changed
    ::
-      > run dbdump
+      > dbdump
       CREATE CACHED TABLE PUBLIC."__migrations__"(
           "id" INTEGER NOT NULL
       );
@@ -121,21 +129,20 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
          (2, 'Stefan', 'Zeiger');
 #. the app realizes it uses an out-dated data model
    ::
-      > run app
+      > run
       Generated code is outdated, please run code generator
 #. re-generate data model classes
    ::
-      > run codegen
+      > codegen
 #. finally we see the users added in migration 2
    ::
-      > run app
+      > run
       Users in the database:
       List(User(1,Chris,Vogt), User(2,Stefan,Zeiger))
 
 Play around yourself
 ^^^^^^^^^^^^^^^^^^^^
 
-- ``run help``
 - write your own migrations `SampleMigrations.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/SampleMigrations.scala>`_
 - change the demo app `App.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/App.scala>`_
 - gather an understanding for the setup and the vision of this proof of concept :)

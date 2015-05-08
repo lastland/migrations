@@ -1,3 +1,5 @@
+package example.build
+
 import scala.migrations.Migration
 import scala.migrations.slick.SlickMigrationManager
 //import scala.migrations.plain.PlainMigrationManager
