@@ -84,6 +84,9 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
    ::
       > codegen
 #. To simulate code evolution: uncomment code in `App.scala <https://github.com/cvogt/migrations/blob/a1acbfdad28b6efa0b7db1df7d1dc264a85818d4/src/main/scala/App.scala>`_
+#. reload sbt
+   ::
+      > reload
 #. a yet empty list of users
    ::
       > run
