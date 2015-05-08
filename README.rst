@@ -39,9 +39,9 @@ Demo steps (simplified output shown here; run ``run help`` for command descripti
    ::
       > +publishLocal
 #. switch to the sbt plugin directory ``migrations/slick-plugin``, then start ``sbt``
-#. publish the sbt plugin
+#. publish the sbt plugin locally
    ::
-      > publish
+      > publishLocal
 #. swith to the example directory ``example``, then start ``sbt``
 #. the db is empty
    ::
