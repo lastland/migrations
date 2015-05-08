@@ -70,7 +70,7 @@ class SlickMigrationPlugin extends AutoPlugin with Commands {
 
   def allCommands = Seq(
     initCommand, resetCommand, statusCommand,
-    applyCommand, previewCommand, dbdumpCommand)
+    migrateCommand, previewCommand, dbdumpCommand)
 
   lazy val initCommand = Command.command("init") { (state: State) =>
     init(migrationManager)
