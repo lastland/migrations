@@ -16,8 +16,8 @@ object SampleMigrations extends MyMigrationManager{
     SqlMigration( 1 )(List(
        """create table "users" ("id" INTEGER NOT NULL PRIMARY KEY,"first" VARCHAR NOT NULL,"last" VARCHAR NOT NULL)"""
     ))
-/*
-    ,GenericMigration( 2 )({
+      ,GenericMigration( 2 )(
+      """{
       // this is typesafe :), but requires the corresponding code version to have been generated
       import datamodel.v1.schema.tables.Users
       import datamodel.v1.schema.tables.UsersRow
@@ -26,12 +26,11 @@ object SampleMigrations extends MyMigrationManager{
         UsersRow(1,"Chris","Vogt"),
         UsersRow(2,"Stefan","Zeiger")
       )
-    })
+    }""")
     ,SqlMigration( 3 )(List(
       // SQL for changing the table again, as we do not have a type-safe, db independent API for that in Slick yet
        """alter table "users" alter column "first" rename to "firstname" """,
        """alter table "users" alter column "last" rename to "lastname" """
     ))
- */
   )
 }

@@ -3,6 +3,7 @@ package scala.migrations.slick
 import scala.slick.driver.H2Driver.simple._
 import Database.dynamicSession
 import scala.language.experimental.macros
+import scala.reflect.runtime.universe._
 
 import scala.migrations.Migration
 
@@ -21,10 +22,10 @@ trait GenericMigrationFunction{
 }
 // GenericMigrationPreviewMacros
 trait GenericMigrationMacro{
-  def apply[T]( id:T )(f : Session => Unit) = macro GenericMigrationMacros.impl[T]
+  def apply[T]( id:T )(s: String) = macro GenericMigrationMacros.impl[T]
 }
 object GenericMigrationMacros{
-  def impl[T:c.WeakTypeTag](c: scala.reflect.macros.Context)(id: c.Expr[T])(f : c.Expr[Session => Unit]) = {
+  def impl[T:c.WeakTypeTag](c: scala.reflect.macros.Context)(id: c.Expr[T])(s : c.Tree) = {
     import c.universe._
     object makeMoreReadable extends Transformer {
       def apply( tree:Tree ) = transform(tree)
@@ -44,16 +45,21 @@ object GenericMigrationMacros{
         }
       }
     }
-    val code_ = c.Expr[String](Literal(Constant((f.tree match {
-      case Block(_,Function(_,Block(statements,expr))) => (statements.toList :+ expr).flatMap(t => makeMoreReadable(t).toString.split("\t")).mkString("\n\t")
-      case Function(_,Block(statements,expr))          => (statements.toList :+ expr).flatMap(t => makeMoreReadable(t).toString.split("\t")).mkString("\n\t")
-      case Function(_,statement)                                   => List(statement).flatMap(t => makeMoreReadable(t).toString.split("\t")).mkString("\n\t")
-      case tree => showRaw(tree)
-    }).toString)))
-    reify{
-      new GenericMigration[T](id.splice)(f.splice){
-        def code = code_.splice
-      }
+    s match {
+      case Literal(Constant(code: String)) =>
+        val f = c.parse(code)
+        val code_ = c.Expr[String](Literal(Constant((f match {
+          case Block(_,Function(_,Block(statements,expr))) => (statements.toList :+ expr).flatMap(t => makeMoreReadable(t).toString.split("\t")).mkString("\n\t")
+          case Function(_,Block(statements,expr))          => (statements.toList :+ expr).flatMap(t => makeMoreReadable(t).toString.split("\t")).mkString("\n\t")
+          case Function(_,statement)                                   => List(statement).flatMap(t => makeMoreReadable(t).toString.split("\t")).mkString("\n\t")
+          case tree => showRaw(tree)
+        }).toString)))
+        reify{
+          new GenericMigration[T](id.splice)(c.Expr[Session => Unit](f).splice){
+            def code = code_.splice
+          }
+        }
+      case _ => throw new RuntimeException("Only literal strings are allowed in migrations!")
     }
   }
 }
