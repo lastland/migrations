@@ -22,7 +22,8 @@ trait GenericMigrationFunction{
 }
 // GenericMigrationPreviewMacros
 trait GenericMigrationMacro{
-  def apply[T]( id:T )(s: String) = macro GenericMigrationMacros.impl[T]
+  def apply[T]( id:T )(s: String): GenericMigration[T] =
+    macro GenericMigrationMacros.impl[T]
 }
 object GenericMigrationMacros{
   def impl[T:c.WeakTypeTag](c: scala.reflect.macros.Context)(id: c.Expr[T])(s : c.Tree) = {
