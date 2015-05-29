@@ -54,11 +54,10 @@ object GenericMigrationMacros{
           case Function(_,statement)                                   => List(statement).flatMap(t => makeMoreReadable(t).toString.split("\t")).mkString("\n\t")
           case tree => showRaw(tree)
         }).toString)))
-        reify{
-          new GenericMigration[T](id.splice)(c.Expr[Session => Unit](f).splice){
-            def code = code_.splice
-          }
-        }
+        q"""
+          new GenericMigration[T]($id)($f) {
+            def code = $code_
+          }"""
       case _ => throw new RuntimeException("Only literal strings are allowed in migrations!")
     }
   }
